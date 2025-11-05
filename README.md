@@ -10,7 +10,7 @@ Synthex is a local-first, open-source semantic search engine for x402 protocol s
 - **⚡ Fast**: Vector search with in-memory caching for instant results
 - **📊 Smart Scoring**: 2-layer scoring system (Bazaar Quality + AI Similarity)
 - **🌐 Real-Time Data**: Fetches latest services from Coinbase Bazaar
-- **💰 Web3 Wallets**: Connect Coinbase Wallet (Base) or Phantom (Solana) to test services
+- **💰 Web3 Wallets**: Connect Coinbase Wallet/MetaMask (Base) or Phantom/Solflare (Solana) to test services
 - **🎨 Clean UI**: Modern Next.js frontend with Tailwind CSS
 
 ## 🚀 Quick Start
@@ -96,8 +96,8 @@ curl "http://localhost:3001/stats"
 - React 18
 - Tailwind CSS
 - TypeScript
-- RainbowKit + Wagmi (Coinbase Wallet for Base)
-- Solana Wallet Adapter (Phantom Wallet)
+- RainbowKit + Wagmi (Coinbase Wallet, MetaMask for Base)
+- Solana Wallet Adapter (Phantom, Solflare)
 
 **Backend:**
 - Express.js

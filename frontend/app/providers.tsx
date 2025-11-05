@@ -5,25 +5,27 @@ import { WagmiProvider, createConfig, http } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider, connectorsForWallets } from '@rainbow-me/rainbowkit';
-import { coinbaseWallet } from '@rainbow-me/rainbowkit/wallets';
+import { coinbaseWallet, metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Import wallet adapter styles
 import '@rainbow-me/rainbowkit/styles.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Configure only Coinbase Wallet for Base
+// Configure Coinbase Wallet + MetaMask for Base (2 most popular)
 const connectors = connectorsForWallets(
   [
     {
-      groupName: 'Recommended',
+      groupName: 'Popular',
       wallets: [
         coinbaseWallet({
           appName: 'Synthex',
-          preference: 'smartWalletOnly', // Prefer Smart Wallet
+        }),
+        metaMaskWallet({
+          projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
         }),
       ],
     },
@@ -49,10 +51,11 @@ const wagmiConfig = createConfig({
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Solana wallet adapter (Phantom only - most popular)
+  // Solana wallet adapters (3 most popular)
   const solanaWallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
     ],
     []
   );

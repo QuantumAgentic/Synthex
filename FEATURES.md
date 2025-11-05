@@ -13,8 +13,8 @@
 
 ### ✅ Web3 Integration
 - **Wallet Connection**:
-  - Base: Coinbase Wallet (most popular on Base network)
-  - Solana: Phantom Wallet (most popular on Solana)
+  - Base: Coinbase Wallet, MetaMask
+  - Solana: Phantom, Solflare
 - **Service Testing**: Users can connect their wallet and test external x402 services found in search results
 - **x402 Protocol**: Full support for calling and paying for external x402 services
 
