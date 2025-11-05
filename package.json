@@ -1,0 +1,44 @@
+{
+  "name": "synthex",
+  "version": "1.0.0",
+  "description": "The Google Search for AI Agents - Local Open Source Version",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "start": "npm run start:backend & npm run start:frontend",
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "cd backend && npm start",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "migrate": "node scripts/migrate-data.js",
+    "generate-embeddings": "node scripts/generate-embeddings.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/synthex.git"
+  },
+  "keywords": [
+    "ai",
+    "search",
+    "x402",
+    "web3",
+    "embeddings",
+    "vector-search",
+    "sqlite",
+    "local-first"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
