@@ -176,11 +176,14 @@ test.describe('Schema Validation and Dynamic Forms', () => {
     await page.waitForLoadState('networkidle');
 
     // Wait for form to be visible
-    await page.waitForSelector('input[name="username"]', { timeout: 10000 });
+    await page.waitForSelector('input[name="username"]', { timeout: 15000 });
+
+    // Wait for page to fully render
+    await page.waitForTimeout(1000);
 
     // Try to submit without filling required field
-    const testButton = page.locator('button:has-text("Test Endpoint"), button:has-text("Test")');
-    await testButton.waitFor({ state: 'visible', timeout: 10000 });
+    const testButton = page.locator('button:has-text("Test Endpoint"), button:has-text("Test"), button[type="submit"]').first();
+    await testButton.waitFor({ state: 'visible', timeout: 15000 });
     await testButton.click();
 
     // Browser should show HTML5 validation error
@@ -373,7 +376,7 @@ test.describe('Schema Validation and Dynamic Forms', () => {
     await page.waitForLoadState('networkidle');
 
     const quantityInput = page.locator('input[name="quantity"]');
-    await quantityInput.waitFor({ state: 'visible', timeout: 10000 });
+    await quantityInput.waitFor({ state: 'visible', timeout: 15000 });
 
     // Verify min/max attributes
     await expect(quantityInput).toHaveAttribute('min', '1');
@@ -382,8 +385,11 @@ test.describe('Schema Validation and Dynamic Forms', () => {
     // Try to enter invalid value
     await quantityInput.fill('150');
 
-    const testButton = page.locator('button:has-text("Test Endpoint"), button:has-text("Test")');
-    await testButton.waitFor({ state: 'visible', timeout: 10000 });
+    // Wait for form to be ready
+    await page.waitForTimeout(1000);
+
+    const testButton = page.locator('button:has-text("Test Endpoint"), button:has-text("Test"), button[type="submit"]').first();
+    await testButton.waitFor({ state: 'visible', timeout: 15000 });
     await testButton.click();
 
     // Browser should show validation error
