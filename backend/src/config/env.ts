@@ -21,7 +21,7 @@ export const config = {
   },
 
   sources: {
-    bazaar: 'https://bazaar.x402.network/v2',
+    bazaar: process.env.COINBASE_BAZAAR_API || 'https://api.cdp.coinbase.com/platform/v2/x402/discovery',
   },
 
   cors: {
