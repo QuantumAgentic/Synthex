@@ -410,21 +410,6 @@ git push origin feature/amazing-feature
 
 ---
 
-## 🎯 Roadmap
-
-- [ ] **Background Service Polling**: Auto-update service database
-- [ ] **Advanced Filtering**: By network, asset type, price range
-- [ ] **Service Monitoring**: Track uptime and response times
-- [ ] **Custom Models**: Support for other embedding models
-- [ ] **Multi-Language**: Support for queries in multiple languages
-- [ ] **API Authentication**: Optional API key protection
-- [ ] **Docker Deployment**: One-command containerized setup
-- [ ] **CLI Tool**: Command-line interface for power users
-- [ ] **Service Categories**: Auto-categorization with AI
-- [ ] **User Favorites**: Save and organize favorite services
-
----
-
 ## 📝 License
 
 This project is licensed under the **BSD 3-Clause License** - see the [LICENSE](LICENSE) file for details.
