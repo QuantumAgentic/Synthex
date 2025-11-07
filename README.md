@@ -88,6 +88,10 @@ cd backend && npm install && cd ..
 # Install frontend dependencies
 cd frontend && npm install && cd ..
 
+# Configure frontend environment
+cp frontend/.env.example frontend/.env.local
+# Edit frontend/.env.local if needed (default: http://localhost:3001/search)
+
 # Initialize database and download AI models
 node scripts/init-database.js
 
@@ -285,7 +289,13 @@ POLLING_INTERVAL_MINUTES=15
 Create `frontend/.env.local`:
 
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:3001
+# Backend API URL (include /search endpoint)
+NEXT_PUBLIC_API_URL=http://localhost:3001/search
+```
+
+**Note**: If this file is missing, copy from the example:
+```bash
+cp frontend/.env.example frontend/.env.local
 ```
 
 ---
