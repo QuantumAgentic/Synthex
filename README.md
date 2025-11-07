@@ -2,7 +2,7 @@
 
 # Synthex
 
-**The Google Search for AI Agents**
+**The Search Engine for AI Agents**
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -10,7 +10,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/QuantumAgentic/Synthex)
 [![E2E Tests](https://img.shields.io/badge/tests-100%25%20passing-brightgreen.svg)](https://github.com/QuantumAgentic/Synthex)
 
-[Live Demo](https://x402.network) • [Twitter](https://x.com/synthex_x402) • [Report Bug](https://github.com/QuantumAgentic/Synthex/issues) • [Request Feature](https://github.com/QuantumAgentic/Synthex/issues)
+[Live Demo](https://x402synthex.xyz) • [Twitter](https://x.com/synthex_x402) • [Report Bug](https://github.com/QuantumAgentic/Synthex/issues) • [Request Feature](https://github.com/QuantumAgentic/Synthex/issues)
 
 </div>
 
