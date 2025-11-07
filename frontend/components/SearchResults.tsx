@@ -3,49 +3,36 @@
 import ResultCard from './ResultCard';
 
 interface Service {
+  id: number;
   resource: string;
   description: string;
-  cost?: string;
-  network?: string;
-  trust_score?: number;
-  performance_score?: number;
+  network: string;
+  asset: string;
+  max_amount: number;
+  similarity_score?: number;
   final_score?: number;
+  score_confidence?: number;
+  trust_transaction_count?: number;
 }
 
 interface SearchResultsProps {
   services: Service[];
   totalFound: number;
   responseTime?: number;
-  aiInsight?: string;
 }
 
 export default function SearchResults({
   services,
   totalFound,
   responseTime,
-  aiInsight,
 }: SearchResultsProps) {
   return (
-    <div className="max-w-3xl">
-      {/* AI Insight */}
-      {aiInsight && (
-        <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <h4 className="text-sm font-semibold text-blue-900 mb-1">AI Insight</h4>
-              <p className="text-sm text-blue-800 leading-relaxed">{aiInsight}</p>
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="w-full max-w-3xl">
 
       {/* Results metadata */}
-      <div className="text-sm text-gray-600 mb-6">
+      <div className="text-sm text-gray-600 mb-4 sm:mb-6">
         About {totalFound.toLocaleString()} results
-        {responseTime && <span className="ml-1">({(responseTime / 1000).toFixed(2)} seconds)</span>}
+        {responseTime && <span className="ml-1 hidden sm:inline">({(responseTime / 1000).toFixed(2)} seconds)</span>}
       </div>
 
       {/* Results list */}
@@ -60,10 +47,10 @@ export default function SearchResults({
               key={`${service.resource}-${index}`}
               resource={service.resource}
               description={service.description}
-              cost={service.cost}
               network={service.network}
-              trustScore={service.trust_score}
-              performanceScore={service.performance_score}
+              asset={service.asset}
+              max_amount={service.max_amount}
+              similarity={service.similarity_score}
               finalScore={service.final_score}
               fullData={service}
             />

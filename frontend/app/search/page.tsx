@@ -7,28 +7,37 @@ import Footer from '../../components/Footer';
 import SearchBar from '../../components/SearchBar';
 import SearchResults from '../../components/SearchResults';
 
+interface Service {
+  id: number;
+  resource: string;
+  description: string;
+  network: string;
+  asset: string;
+  max_amount: number;
+  pay_to: string;
+  manifest: any;
+  trust_transaction_count: number;
+  trust_last_seen: number | null;
+  trust_origin_title: string | null;
+  trust_origin_description: string | null;
+  score_confidence: number;
+  score_performance_ms: number | null;
+  score_reliability: number;
+  score_popularity: number;
+  score_unique_users: number;
+  source_bazaar: number;
+  source_x402scan: number;
+  source_xgate: number;
+  last_updated: number;
+  similarity_score?: number;
+  final_score?: number;
+}
+
 interface SearchResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
-  }>;
-  x402: {
-    services: Array<{
-      resource: string;
-      description: string;
-      cost?: string;
-      network?: string;
-      trust_score?: number;
-      performance_score?: number;
-      final_score?: number;
-    }>;
-    total_found: number;
-    tier?: string;
-    resultsLimit?: number;
-    searchesRemaining?: number;
-    dailyLimit?: number;
-  };
+  query: string;
+  results: Service[];
+  count: number;
+  timestamp: string;
 }
 
 function SearchPageContent() {
@@ -48,17 +57,16 @@ function SearchPageContent() {
       const startTime = Date.now();
 
       try {
-        // Call the hidden free endpoint
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/search/free',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query }),
-          }
-        );
+        // Call the local backend API with GET request
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/search';
+        const url = `${apiUrl}?q=${encodeURIComponent(query)}`;
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
         const endTime = Date.now();
         setSearchTime(endTime - startTime);
@@ -81,9 +89,6 @@ function SearchPageContent() {
     performSearch();
   }, [query]);
 
-  // Extract AI insight from the response
-  const aiInsight = results?.choices?.[0]?.message?.content;
-
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Header with compact search */}
@@ -98,27 +103,6 @@ function SearchPageContent() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Free tier banner */}
-        {results?.x402?.tier === 'free' && results?.x402?.searchesRemaining !== undefined && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start justify-between">
-              <div>
-                <h4 className="text-sm font-semibold text-blue-900">Free Search</h4>
-                <p className="text-sm text-blue-700 mt-1">
-                  {results.x402.searchesRemaining} of {results.x402.dailyLimit} free searches remaining today
-                </p>
-              </div>
-              {results.x402.searchesRemaining === 0 && (
-                <a
-                  href="/docs"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 underline whitespace-nowrap"
-                >
-                  Upgrade to API
-                </a>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Loading state */}
         {loading && (
@@ -149,10 +133,9 @@ function SearchPageContent() {
         {/* Results */}
         {!loading && !error && results && (
           <SearchResults
-            services={results.x402.services}
-            totalFound={results.x402.total_found}
+            services={results.results}
+            totalFound={results.count}
             responseTime={searchTime}
-            aiInsight={aiInsight}
           />
         )}
 

@@ -13,11 +13,35 @@ export default function SearchBar({ initialQuery = '', size = 'large', autoFocus
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
 
+  // Popular X402 protocol queries (15 short queries, max 4 words)
+  const popularQueries = [
+    'weather forecast API',
+    'crypto price data',
+    'AI text generation',
+    'image processing service',
+    'data storage solution',
+    'email verification API',
+    'payment processing gateway',
+    'blockchain transaction data',
+    'real-time chat service',
+    'document conversion tool',
+    'language translation API',
+    'analytics tracking service',
+    'authentication provider system',
+    'notification delivery service',
+    'file upload handler'
+  ];
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
     }
+  };
+
+  const handleLuckyClick = () => {
+    const randomQuery = popularQueries[Math.floor(Math.random() * popularQueries.length)];
+    router.push(`/search?q=${encodeURIComponent(randomQuery)}`);
   };
 
   const heightClass = size === 'large' ? 'h-14' : 'h-11';
@@ -99,11 +123,7 @@ export default function SearchBar({ initialQuery = '', size = 'large', autoFocus
           </button>
           <button
             type="button"
-            onClick={() => {
-              if (query.trim()) {
-                router.push(`/search?q=${encodeURIComponent(query.trim())}&lucky=true`);
-              }
-            }}
+            onClick={handleLuckyClick}
             className="px-6 py-3 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-sm text-gray-700 transition-colors"
           >
             I'm Feeling Lucky
