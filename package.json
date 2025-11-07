@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/synthex.git"
+    "url": "https://github.com/QuantumAgentic/Synthex.git"
   },
   "keywords": [
     "ai",
@@ -36,8 +36,8 @@
     "sqlite",
     "local-first"
   ],
-  "author": "Your Name",
-  "license": "MIT",
+  "author": "QuantumAgentic",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "concurrently": "^8.2.2"
   }

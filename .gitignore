@@ -47,3 +47,6 @@ frontend/models/
 .idea/
 *.swp
 *.swo
+
+# Documentation
+docs/

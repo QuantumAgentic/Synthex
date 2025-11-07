@@ -23,18 +23,22 @@ export default function Logo({ size = 'medium', showText = true, className = '' 
   const logoSize = sizeMap[size];
   const textSize = textSizeMap[size];
 
+  // Different positioning for large size (homepage)
+  const logoMargin = size === 'large' ? 'translate-y-2 -mr-3' : '-mr-2';
+
   return (
-    <Link href="/" className={`flex items-center gap-2 ${className}`}>
+    <Link href="/" className={`flex items-end gap-0 ${className}`}>
       <Image
         src="/synthex-logo.svg"
         alt="Synthex"
         width={logoSize}
         height={logoSize}
         priority
+        className={logoMargin}
       />
       {showText && (
         <span className={`${textSize} font-bold text-gray-900`}>
-          Synthex
+          ynthex
           <span className="text-xs text-gray-500 ml-1 font-normal">x402</span>
         </span>
       )}

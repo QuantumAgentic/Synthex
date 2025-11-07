@@ -22,12 +22,20 @@ export default function Footer() {
               API
             </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/QuantumAgentic/Synthex"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-blue-600 transition-colors"
             >
               GitHub
+            </a>
+            <a
+              href="https://x.com/synthex_x402"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Twitter
             </a>
           </div>
         </div>
