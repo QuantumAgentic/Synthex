@@ -60,11 +60,20 @@ async function autoInitialize() {
     console.log(`   ✓ Fetched ${bazaarServices.length} services`);
     console.log('');
 
+    // Calculate total steps for unified progress
+    const totalSteps = bazaarServices.length * 2; // insert + embedding for each service
+    let currentStep = 0;
+
     // Step 2: Normalize and insert services
-    console.log('💾 Inserting services into database...');
+    console.log('🚀 Initializing database (this may take a few minutes)...');
+    console.log('');
+
     let inserted = 0;
     let failed = 0;
-    const total = bazaarServices.length;
+
+    // Load embedding model first
+    const embeddingService = getEmbeddingService();
+    await embeddingService.initialize();
 
     for (let i = 0; i < bazaarServices.length; i++) {
       const bazaarService = bazaarServices[i];
@@ -73,6 +82,7 @@ async function autoInitialize() {
 
         if (!ServiceNormalizer.validate(normalized)) {
           failed++;
+          currentStep += 2; // Skip both insert and embedding
           continue;
         }
 
@@ -104,81 +114,63 @@ async function autoInitialize() {
 
         db.upsertService(service);
         inserted++;
+        currentStep++;
 
-        // Progress every 10%
-        if (inserted % Math.ceil(total / 10) === 0 || inserted === total) {
-          const percent = Math.round((inserted / total) * 100);
+        // Generate embedding immediately
+        const serviceFromDb = db.getServiceById(service.resource);
+        if (serviceFromDb) {
+          try {
+            const manifest = typeof serviceFromDb.manifest === 'string'
+              ? JSON.parse(serviceFromDb.manifest)
+              : serviceFromDb.manifest;
+
+            const normalizedForEmbed = {
+              ...serviceFromDb,
+              maxAmount: BigInt(serviceFromDb.max_amount || 0),
+              payTo: serviceFromDb.pay_to,
+              manifest,
+              trustTransactionCount: serviceFromDb.trust_transaction_count || 0,
+              trustLastSeen: serviceFromDb.trust_last_seen
+                ? new Date(serviceFromDb.trust_last_seen * 1000)
+                : null,
+              trustOriginTitle: serviceFromDb.trust_origin_title,
+              trustOriginDescription: serviceFromDb.trust_origin_description,
+              scoreConfidence: serviceFromDb.score_confidence || 0.5,
+              scorePerformanceMs: serviceFromDb.score_performance_ms,
+              scoreReliability: serviceFromDb.score_reliability || 0.5,
+              scorePopularity: serviceFromDb.score_popularity || 0,
+              scoreUniqueUsers: serviceFromDb.score_unique_users || 0,
+              sourceBazaar: Boolean(serviceFromDb.source_bazaar),
+              sourceX402scan: Boolean(serviceFromDb.source_x402scan),
+              sourceXgate: Boolean(serviceFromDb.source_xgate),
+              lastUpdated: new Date(serviceFromDb.last_updated * 1000),
+            };
+
+            const searchableText = ServiceNormalizer.extractSearchableText(normalizedForEmbed);
+            const embedding = await embeddingService.generateEmbedding(searchableText);
+            db.upsertEmbedding(serviceFromDb.id, embedding, embeddingService.getDimensions());
+            currentStep++;
+          } catch {
+            currentStep++;
+          }
+        } else {
+          currentStep++;
+        }
+
+        // Update progress bar every 2%
+        if (currentStep % Math.ceil(totalSteps / 50) === 0 || currentStep === totalSteps) {
+          const percent = Math.round((currentStep / totalSteps) * 100);
           const bar = '█'.repeat(Math.floor(percent / 5)) + '░'.repeat(20 - Math.floor(percent / 5));
-          process.stdout.write(`\r   [${bar}] ${percent}% (${inserted}/${total})`);
+          const phase = currentStep <= bazaarServices.length ? 'Inserting' : 'Generating embeddings';
+          process.stdout.write(`\r   [${bar}] ${percent}% - ${phase}... (${inserted}/${bazaarServices.length} processed)`);
         }
       } catch (error) {
         failed++;
+        currentStep += 2;
       }
     }
 
     console.log('');
-    console.log(`   ✓ Inserted ${inserted} services` + (failed > 0 ? ` (${failed} failed)` : ''));
-    console.log('');
-
-    // Step 3: Generate embeddings
-    console.log('🤖 Generating AI embeddings (this may take a few minutes)...');
-    console.log('   Loading embedding model (first run downloads ~23MB)...');
-
-    const embeddingService = getEmbeddingService();
-    await embeddingService.initialize();
-    console.log('   ✓ Model loaded');
-
-    const servicesWithoutEmbeddings = db.getServicesWithoutEmbeddings();
-    const embTotal = servicesWithoutEmbeddings.length;
-    let embeddingCount = 0;
-
-    for (const service of servicesWithoutEmbeddings) {
-      try {
-        const manifest = typeof service.manifest === 'string'
-          ? JSON.parse(service.manifest)
-          : service.manifest;
-
-        const normalized = {
-          ...service,
-          maxAmount: BigInt(service.max_amount || 0),
-          payTo: service.pay_to,
-          manifest,
-          trustTransactionCount: service.trust_transaction_count || 0,
-          trustLastSeen: service.trust_last_seen
-            ? new Date(service.trust_last_seen * 1000)
-            : null,
-          trustOriginTitle: service.trust_origin_title,
-          trustOriginDescription: service.trust_origin_description,
-          scoreConfidence: service.score_confidence || 0.5,
-          scorePerformanceMs: service.score_performance_ms,
-          scoreReliability: service.score_reliability || 0.5,
-          scorePopularity: service.score_popularity || 0,
-          scoreUniqueUsers: service.score_unique_users || 0,
-          sourceBazaar: Boolean(service.source_bazaar),
-          sourceX402scan: Boolean(service.source_x402scan),
-          sourceXgate: Boolean(service.source_xgate),
-          lastUpdated: new Date(service.last_updated * 1000),
-        };
-
-        const searchableText = ServiceNormalizer.extractSearchableText(normalized);
-        const embedding = await embeddingService.generateEmbedding(searchableText);
-
-        db.upsertEmbedding(service.id, embedding, embeddingService.getDimensions());
-        embeddingCount++;
-
-        // Progress every 5%
-        if (embeddingCount % Math.ceil(embTotal / 20) === 0 || embeddingCount === embTotal) {
-          const percent = Math.round((embeddingCount / embTotal) * 100);
-          const bar = '█'.repeat(Math.floor(percent / 5)) + '░'.repeat(20 - Math.floor(percent / 5));
-          process.stdout.write(`\r   [${bar}] ${percent}% (${embeddingCount}/${embTotal})`);
-        }
-      } catch (error) {
-        // Skip failed embeddings silently
-      }
-    }
-
-    console.log('');
-    console.log(`   ✓ Generated ${embeddingCount} embeddings`);
     console.log('');
 
     const finalStats = db.getStats();
@@ -186,6 +178,7 @@ async function autoInitialize() {
     console.log(`   📊 ${finalStats.services} services indexed`);
     console.log(`   🎯 ${finalStats.embeddings} AI embeddings ready`);
     console.log(`   💾 Database size: ${(finalStats.dbSize / 1024 / 1024).toFixed(2)} MB`);
+    if (failed > 0) console.log(`   ⚠️  ${failed} services failed to process`);
     console.log('');
   } catch (error) {
     console.error('');
