@@ -1,5 +1,7 @@
 <div align="center">
 
+![Synthex Banner](assets/Synthex_intro.png)
+
 # Synthex
 
 **The Search Engine for AI Agents**
