@@ -110,6 +110,11 @@ function ServiceDetailsContent({ params }: { params: { id: string } }) {
     maxTimeoutSeconds: primaryAccept?.maxTimeoutSeconds || 30
   };
 
+  // Extract input and output schemas from manifest
+  const inputSchema = primaryAccept?.outputSchema?.input || null;
+  const outputSchema = primaryAccept?.outputSchema?.output || null;
+  const expectedMimeType = primaryAccept?.mimeType || 'application/json';
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -165,9 +170,9 @@ function ServiceDetailsContent({ params }: { params: { id: string } }) {
         {/* Endpoint Tester */}
         <EndpointTester
           accept={mockAccept}
-          inputSchema={null}
-          outputSchema={null}
-          expectedMimeType="application/json"
+          inputSchema={inputSchema}
+          outputSchema={outputSchema}
+          expectedMimeType={expectedMimeType}
         />
       </div>
     </div>
