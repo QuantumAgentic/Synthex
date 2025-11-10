@@ -98,11 +98,11 @@ async function autoInitialize() {
           trust_transaction_count: normalized.trustTransactionCount,
           trust_last_seen: normalized.trustLastSeen
             ? Math.floor(normalized.trustLastSeen.getTime() / 1000)
-            : null,
-          trust_origin_title: normalized.trustOriginTitle,
-          trust_origin_description: normalized.trustOriginDescription,
+            : undefined,
+          trust_origin_title: normalized.trustOriginTitle || undefined,
+          trust_origin_description: normalized.trustOriginDescription || undefined,
           score_confidence: normalized.scoreConfidence,
-          score_performance_ms: normalized.scorePerformanceMs,
+          score_performance_ms: normalized.scorePerformanceMs ?? undefined,
           score_reliability: normalized.scoreReliability,
           score_popularity: normalized.scorePopularity,
           score_unique_users: normalized.scoreUniqueUsers,
@@ -117,7 +117,7 @@ async function autoInitialize() {
         currentStep++;
 
         // Generate embedding immediately
-        const serviceFromDb = db.getServiceById(service.resource);
+        const serviceFromDb = db.getServiceByResource(service.resource);
         if (serviceFromDb) {
           try {
             const manifest = typeof serviceFromDb.manifest === 'string'
@@ -133,10 +133,10 @@ async function autoInitialize() {
               trustLastSeen: serviceFromDb.trust_last_seen
                 ? new Date(serviceFromDb.trust_last_seen * 1000)
                 : null,
-              trustOriginTitle: serviceFromDb.trust_origin_title,
-              trustOriginDescription: serviceFromDb.trust_origin_description,
+              trustOriginTitle: serviceFromDb.trust_origin_title || null,
+              trustOriginDescription: serviceFromDb.trust_origin_description || null,
               scoreConfidence: serviceFromDb.score_confidence || 0.5,
-              scorePerformanceMs: serviceFromDb.score_performance_ms,
+              scorePerformanceMs: serviceFromDb.score_performance_ms || null,
               scoreReliability: serviceFromDb.score_reliability || 0.5,
               scorePopularity: serviceFromDb.score_popularity || 0,
               scoreUniqueUsers: serviceFromDb.score_unique_users || 0,
@@ -148,7 +148,9 @@ async function autoInitialize() {
 
             const searchableText = ServiceNormalizer.extractSearchableText(normalizedForEmbed);
             const embedding = await embeddingService.generateEmbedding(searchableText);
-            db.upsertEmbedding(serviceFromDb.id, embedding, embeddingService.getDimensions());
+            if (serviceFromDb.id !== undefined) {
+              db.upsertEmbedding(serviceFromDb.id, embedding, embeddingService.getDimensions());
+            }
             currentStep++;
           } catch {
             currentStep++;

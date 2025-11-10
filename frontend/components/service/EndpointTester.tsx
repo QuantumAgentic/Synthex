@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useAccount, useWalletClient } from 'wagmi';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { X402Accept, X402Schema, TestResponse } from '@/types/service';
 import { MultiChainConnect } from '../wallet/MultiChainConnect';
 import { DynamicSchemaForm } from './DynamicSchemaForm';
 import { ResponseViewer } from './ResponseViewer';
-import { formatAmount } from '@/lib/x402-payment';
+import { formatAmount, getNetworkType } from '@/lib/x402-payment';
 import { parseInputSchema } from '@/lib/schema-utils';
-import { mockTestEndpoint } from '@/lib/x402-client';
+import { testX402Endpoint } from '@/lib/x402-client';
 
 interface EndpointTesterProps {
   accept: X402Accept;
@@ -21,8 +23,17 @@ export function EndpointTester({ accept, inputSchema, outputSchema, expectedMime
   const [response, setResponse] = useState<TestResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Wallet hooks
+  const { isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const solanaWallet = useWallet();
+
   const { display } = formatAmount(accept.maxAmountRequired, accept.asset, accept.network);
   const parsedSchema = inputSchema ? parseInputSchema(inputSchema) : null;
+
+  const networkType = getNetworkType(accept.network);
+  const isBase = networkType === 'evm';
+  const isSolana = networkType === 'solana';
 
   const handleTest = async (inputData: Record<string, any>) => {
     setLoading(true);
@@ -30,14 +41,15 @@ export function EndpointTester({ accept, inputSchema, outputSchema, expectedMime
     setResponse(null);
 
     try {
-      // TODO: Replace with real wallet transaction
-      // For now, using mock test
-      const result = await mockTestEndpoint({
+      // Use real wallet client for both Base (EVM) and Solana
+      const result = await testX402Endpoint({
         accept,
         inputData,
         inputSchema,
-        outputSchema
-      });
+        outputSchema,
+        walletClient: isBase ? walletClient : undefined,
+        solanaWallet: isSolana ? solanaWallet : undefined
+      } as any);
 
       setResponse(result);
     } catch (err) {
@@ -55,9 +67,6 @@ export function EndpointTester({ accept, inputSchema, outputSchema, expectedMime
       <div className="mb-6">
         <h3 className="font-semibold text-gray-900 mb-3">1. Connect Wallet</h3>
         <MultiChainConnect network={accept.network} />
-        <p className="mt-2 text-sm text-yellow-600">
-          ⚠️ Demo mode: Using mock transactions (no real payment required)
-        </p>
       </div>
 
       {/* Step 2: Payment Info */}

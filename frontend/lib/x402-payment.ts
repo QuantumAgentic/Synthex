@@ -13,12 +13,14 @@ export function formatAmount(amountString: string, asset: string, network: strin
   const amount = BigInt(amountString);
 
   // Determine decimals based on network and asset
-  let decimals = 18; // Default for ETH
+  let decimals = 6; // Default to USDC (most common on Base)
 
   if (network.includes('base')) {
-    // Base network - USDC has 6 decimals
-    if (asset.toLowerCase().includes('usdc') || asset === '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913') {
-      decimals = 6;
+    // Base network - ETH has 18 decimals, USDC has 6
+    if (asset === '0x0000000000000000000000000000000000000000' || asset.toLowerCase().includes('eth')) {
+      decimals = 18;
+    } else {
+      decimals = 6; // Default to 6 decimals for USDC and other stablecoins
     }
   } else if (network === 'solana') {
     // Solana - SOL has 9 decimals
@@ -40,7 +42,12 @@ export function formatAmount(amountString: string, asset: string, network: strin
   // Get asset symbol
   let symbol = 'tokens';
   if (network.includes('base')) {
-    symbol = asset.toLowerCase().includes('usdc') ? 'USDC' : 'ETH';
+    // Default to USDC for Base network (most common)
+    if (asset === '0x0000000000000000000000000000000000000000' || asset.toLowerCase().includes('eth')) {
+      symbol = 'ETH';
+    } else {
+      symbol = 'USDC'; // Default for stablecoins
+    }
   } else if (network === 'solana') {
     symbol = 'SOL';
   }
@@ -133,4 +140,17 @@ export function buildQueryString(params: Record<string, any>): string {
   });
 
   return searchParams.toString();
+}
+
+/**
+ * Get network type from network string
+ */
+export function getNetworkType(network: string): 'evm' | 'solana' | 'unknown' {
+  if (network.includes('base') || network.includes('polygon') || network.includes('ethereum')) {
+    return 'evm';
+  }
+  if (network.includes('solana')) {
+    return 'solana';
+  }
+  return 'unknown';
 }
