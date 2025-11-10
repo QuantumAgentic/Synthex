@@ -65,11 +65,13 @@ cd Synthex
 # Run setup script (installs deps, downloads models, initializes DB)
 npm run setup
 
-# Start the application
-npm run dev
+# Start the application (auto-builds and starts production server)
+npm run start
 ```
 
-**That's it!** Access Synthex at:
+**That's it!** The `npm run start` command will automatically build the application for production and start both the frontend and backend servers.
+
+Access Synthex at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 
@@ -97,11 +99,15 @@ cp frontend/.env.example frontend/.env.local
 # Initialize database and download AI models
 node scripts/init-database.js
 
-# Terminal 1: Start backend
-cd backend && npm run dev
+# Build and start both servers (recommended)
+npm run start
 
-# Terminal 2: Start frontend
-cd frontend && npm run dev
+# OR manually start in separate terminals:
+# Terminal 1: Build and start backend
+cd backend && npm run build && npm start
+
+# Terminal 2: Build and start frontend
+cd frontend && npm run build && npm start
 ```
 
 ---
@@ -314,11 +320,11 @@ node scripts/init-database.js
 
 ### Clear Cache
 
-The cache auto-cleans expired entries on startup. To force clear:
+The cache auto-cleans expired entries on startup. To force clear, restart the application:
 
 ```bash
-# Restart the backend
-cd backend && npm run dev
+# Restart both servers
+npm run start
 ```
 
 ### View Statistics
@@ -391,7 +397,10 @@ git checkout -b feature/amazing-feature
 # Install dependencies
 npm install
 
-# Start dev servers
+# Start application in production mode
+npm run start
+
+# OR use dev mode for development (with hot reload)
 npm run dev
 
 # Make your changes and test
