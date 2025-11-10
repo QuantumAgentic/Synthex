@@ -12,7 +12,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/QuantumAgentic/Synthex)
 [![E2E Tests](https://img.shields.io/badge/tests-100%25%20passing-brightgreen.svg)](https://github.com/QuantumAgentic/Synthex)
 
-[Live Demo](https://x402synthex.xyz) • [Twitter](https://x.com/synthex_x402) • [Report Bug](https://github.com/QuantumAgentic/Synthex/issues) • [Request Feature](https://github.com/QuantumAgentic/Synthex/issues)
+[Live Demo](https://x402synthex.xyz) • [Demo Video](https://youtu.be/AEbcwlg7f-A) • [Twitter](https://x.com/synthex_x402) • [Report Bug](https://github.com/QuantumAgentic/Synthex/issues) • [Request Feature](https://github.com/QuantumAgentic/Synthex/issues)
 
 </div>
 
