@@ -6,7 +6,6 @@ import { base, baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider, connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { coinbaseWallet, metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
-import { clusterApiUrl } from '@solana/web3.js';
 
 // Import wallet adapter styles
 import '@rainbow-me/rainbowkit/styles.css';
@@ -63,9 +62,9 @@ function useSolanaWallets() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Solana endpoint (mainnet-beta)
+  // Solana endpoint (mainnet-beta) - hardcoded to avoid importing @solana/web3.js
   const solanaEndpoint = useMemo(
-    () => process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl('mainnet-beta'),
+    () => process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
     []
   );
 
