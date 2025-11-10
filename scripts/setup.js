@@ -65,15 +65,15 @@ POLLING_INTERVAL_MINUTES=15
   console.log('   ✓ backend/.env exists');
 }
 
-const frontendEnvPath = join(rootDir, 'frontend/.env');
+const frontendEnvPath = join(rootDir, 'frontend/.env.local');
 if (!existsSync(frontendEnvPath)) {
   const frontendEnvContent = `# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3001/search
 `;
   writeFileSync(frontendEnvPath, frontendEnvContent);
-  console.log('   ✓ Created frontend/.env');
+  console.log('   ✓ Created frontend/.env.local');
 } else {
-  console.log('   ✓ frontend/.env exists');
+  console.log('   ✓ frontend/.env.local exists');
 }
 console.log('');
 
@@ -102,6 +102,10 @@ async function runCommand(command, args, cwd) {
 }
 
 try {
+  console.log('   Installing root dependencies (concurrently)...');
+  await runCommand('npm', ['install'], rootDir);
+  console.log('   ✓ Root dependencies installed\n');
+
   console.log('   Installing backend dependencies...');
   await runCommand('npm', ['install'], join(rootDir, 'backend'));
   console.log('   ✓ Backend dependencies installed\n');

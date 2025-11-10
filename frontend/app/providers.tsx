@@ -1,19 +1,27 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, lazy, Suspense } from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider, connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { coinbaseWallet, metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Import wallet adapter styles
 import '@rainbow-me/rainbowkit/styles.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
+
+// Lazy load Solana wallet components
+const ConnectionProvider = lazy(() =>
+  import('@solana/wallet-adapter-react').then(mod => ({ default: mod.ConnectionProvider }))
+);
+const WalletProvider = lazy(() =>
+  import('@solana/wallet-adapter-react').then(mod => ({ default: mod.WalletProvider }))
+);
+const WalletModalProvider = lazy(() =>
+  import('@solana/wallet-adapter-react-ui').then(mod => ({ default: mod.WalletModalProvider }))
+);
 
 // Configure Coinbase Wallet + MetaMask for Base (2 most popular)
 const connectors = connectorsForWallets(
@@ -46,16 +54,15 @@ const wagmiConfig = createConfig({
 // React Query client
 const queryClient = new QueryClient();
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  // Solana wallet adapters (3 most popular)
-  const solanaWallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
-    ],
-    []
-  );
+// Lazy load Solana wallet adapters
+function useSolanaWallets() {
+  return useMemo(async () => {
+    const { PhantomWalletAdapter, SolflareWalletAdapter } = await import('@solana/wallet-adapter-wallets');
+    return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+  }, []);
+}
 
+export function Providers({ children }: { children: React.ReactNode }) {
   // Solana endpoint (mainnet-beta)
   const solanaEndpoint = useMemo(
     () => process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl('mainnet-beta'),
@@ -66,15 +73,34 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <ConnectionProvider endpoint={solanaEndpoint}>
-            <WalletProvider wallets={solanaWallets} autoConnect>
-              <WalletModalProvider>
-                {children}
-              </WalletModalProvider>
-            </WalletProvider>
-          </ConnectionProvider>
+          <Suspense fallback={<>{children}</>}>
+            <SolanaWalletWrapper endpoint={solanaEndpoint}>
+              {children}
+            </SolanaWalletWrapper>
+          </Suspense>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
+  );
+}
+
+// Separate component to handle lazy-loaded Solana wallets
+function SolanaWalletWrapper({ children, endpoint }: { children: React.ReactNode; endpoint: string }) {
+  const [wallets, setWallets] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    import('@solana/wallet-adapter-wallets').then(({ PhantomWalletAdapter, SolflareWalletAdapter }) => {
+      setWallets([new PhantomWalletAdapter(), new SolflareWalletAdapter()]);
+    });
+  }, []);
+
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          {children}
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   );
 }
